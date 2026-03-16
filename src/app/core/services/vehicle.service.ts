@@ -8,7 +8,7 @@ import { Vehicle, VehicleFilter, PagedResult } from '../models/vehicle.models';
 })
 export class VehicleService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:7111/api/vehicles';
+ private readonly API_URL = 'https://localhost:7268/api/vehicles';
 
   getAll(filter: VehicleFilter): Observable<PagedResult<Vehicle>> {
     let params = new HttpParams()
