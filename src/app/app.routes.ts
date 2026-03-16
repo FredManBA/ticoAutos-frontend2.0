@@ -5,6 +5,7 @@ import { VehicleListComponent } from './features/vehicles/vehicle-list/vehicle-l
 import { VehicleDetailComponent } from './features/vehicles/vehicle-detail/vehicle-detail.component';
 import { MyVehiclesComponent } from './features/vehicles/my-vehicles/my-vehicles.component';
 import { PublishVehicleComponent } from './features/vehicles/publish-vehicle/publish-vehicle.component';
+import { EditVehicleComponent } from './features/vehicles/edit-vehicle/edit-vehicle.component';
 import { authGuard } from './core/guards/auth.guard';
 
 
@@ -14,6 +15,7 @@ import { authGuard } from './core/guards/auth.guard';
  * The wildcard route '**' redirects any unknown paths to the vehicle listing page.
  */
 export const routes: Routes = [
+  { path: 'my-vehicles/:id/edit', component: EditVehicleComponent, canActivate: [authGuard] },
   { path: 'my-vehicles/new', component: PublishVehicleComponent, canActivate: [authGuard] },
   { path: '', redirectTo: '/vehicles', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },

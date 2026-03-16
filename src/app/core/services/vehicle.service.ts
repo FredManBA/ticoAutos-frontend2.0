@@ -57,4 +57,29 @@ export class VehicleService {
 create(data: any): Observable<Vehicle> {
   return this.http.post<Vehicle>(this.API_URL, data);
 }
+
+/**
+ * Updates an existing vehicle listing.
+ * @param id - Vehicle ID
+ * @param data - Updated vehicle data
+ */
+update(id: number, data: any): Observable<Vehicle> {
+  return this.http.put<Vehicle>(`${this.API_URL}/${id}`, data);
+}
+
+/**
+ * Deletes a vehicle listing by ID.
+ * @param id - Vehicle ID
+ */
+delete(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.API_URL}/${id}`);
+}
+
+/**
+ * Marks a vehicle as sold.
+ * @param id - Vehicle ID
+ */
+markAsSold(id: number): Observable<Vehicle> {
+  return this.http.patch<Vehicle>(`${this.API_URL}/${id}/sold`, {});
+}
 }

@@ -19,7 +19,12 @@
       </ng-container>
 
       <ng-container *ngIf="authService.getToken()">
-        <a routerLink="/my-vehicles" class="text-slate-300 hover:text-white font-medium transition-colors">Mis Autos</a>
+        <a routerLink="/my-vehicles" class="text-slate-300 hover:text-white font-medium transition-colors">
+          Mis Autos
+        </a>
+          <span class="text-slate-300 text-sm">
+          👤 {{ authService.getUserName() }}
+        </span>
         <button (click)="logout()"
           class="text-red-400 hover:text-red-300 font-medium transition-colors flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"

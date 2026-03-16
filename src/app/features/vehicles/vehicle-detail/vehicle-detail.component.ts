@@ -3,11 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { VehicleService } from '../../../core/services/vehicle.service';
 import { Vehicle } from '../../../core/models/vehicle.models';
+import { VehicleQuestionsComponent } from '../vehicle-questions/vehicle-questions.component';
 
+/**
+ * Component for displaying full vehicle detail with share URL and Q&A section.
+ */
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, VehicleQuestionsComponent],
   templateUrl: './vehicle-detail.component.html'
 })
 export class VehicleDetailComponent implements OnInit {
@@ -29,6 +33,7 @@ export class VehicleDetailComponent implements OnInit {
     });
   }
 
+  /** Copies the current page URL to clipboard for sharing. */
   copyUrl(): void {
     navigator.clipboard.writeText(window.location.href).then(() => {
       this.urlCopied = true;

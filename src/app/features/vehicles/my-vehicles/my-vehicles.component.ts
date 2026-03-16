@@ -5,8 +5,7 @@ import { VehicleService } from '../../../core/services/vehicle.service';
 import { Vehicle } from '../../../core/models/vehicle.models';
 
 /**
- * Component for displaying the authenticated user's vehicle listings.
- * Accessible only to logged-in users via AuthGuard.
+ * Component for displaying and managing the authenticated user's vehicle listings.
  */
 @Component({
   selector: 'app-my-vehicles',
@@ -17,22 +16,38 @@ import { Vehicle } from '../../../core/models/vehicle.models';
 export class MyVehiclesComponent implements OnInit {
   private vehicleService = inject(VehicleService);
 
-  /** List of vehicles owned by the current user */
   vehicles: Vehicle[] = [];
-
-  /** Loading state flag */
   loading = true;
 
-  /**
-   * Loads the current user's vehicles on component initialization.
-   */
   ngOnInit(): void {
+    this.loadVehicles();
+  }
+
+  /** Loads the current user's vehicles from the API. */
+  loadVehicles(): void {
+    this.loading = true;
     this.vehicleService.getMyVehicles().subscribe({
       next: (vehicles) => {
         this.vehicles = vehicles;
         this.loading = false;
       },
       error: () => { this.loading = false; }
+    });
+  }
+
+  /** Deletes a vehicle after user confirmation. */
+  onDelete(id: number): void {
+    if (!confirm('¿Estás seguro de que querés eliminar este vehículo?')) return;
+    this.vehicleService.delete(id).subscribe({
+      next: () => this.loadVehicles()
+    });
+  }
+
+  /** Marks a vehicle as sold. */
+  onMarkAsSold(id: number): void {
+    if (!confirm('¿Marcar este vehículo como vendido?')) return;
+    this.vehicleService.markAsSold(id).subscribe({
+      next: () => this.loadVehicles()
     });
   }
 }

@@ -8,6 +8,7 @@ export interface Vehicle {
   imageUrl: string;
   isSold: boolean;
   ownerId: number;
+  ownerName: string;  
   createdAt: string;
 }
 
@@ -29,4 +30,20 @@ export interface PagedResult<T> {
   page: number;
   pageSize: number;
   totalPages: number;
+}
+
+export interface AnswerResponse {
+  id: number;
+  content: string;
+  createdAt: string;
+}
+
+export interface QuestionResponse {
+  id: number;
+  content: string;
+  createdAt: string;
+  vehicleId: number;
+  askerId: number;
+  askerName: string;
+  answer: AnswerResponse | null;
 }
