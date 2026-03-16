@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service'; // Revisa que esta ruta sea correcta
+import { AuthService } from '../../../core/services/auth.service'; 
 import { Router } from '@angular/router';
 import { AuthResponse } from '../../../core/models/auth.models';
 
@@ -9,7 +9,8 @@ import { AuthResponse } from '../../../core/models/auth.models';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './login.component.html'
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss'  
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);

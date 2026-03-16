@@ -8,7 +8,7 @@ import { AuthResponse, LoginRequest } from '../models/auth.models';
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:7111/api/auth'; 
+private readonly API_URL = 'https://localhost:7268/api/auth';
   private readonly TOKEN_KEY = 'ticoautos_token';
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
