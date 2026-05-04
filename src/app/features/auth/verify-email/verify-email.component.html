@@ -1,0 +1,22 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-4">
+  <div class="max-w-md w-full space-y-6 bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 shadow-2xl text-center">
+    <h2 class="text-3xl font-extrabold text-white tracking-tight">
+      Tico<span class="text-blue-400">Autos</span>
+    </h2>
+
+    <div
+      class="border text-sm py-4 px-4 rounded-xl"
+      [ngClass]="success ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-100' : 'bg-red-500/20 border-red-500/50 text-red-200'"
+    >
+      {{ message }}
+    </div>
+
+    @if (loading) {
+      <p class="text-slate-300 text-sm">Espere un momento...</p>
+    } @else {
+      <a routerLink="/login" class="inline-flex justify-center w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/40">
+        Ir al login
+      </a>
+    }
+  </div>
+</div>

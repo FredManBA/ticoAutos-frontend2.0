@@ -3,34 +3,47 @@
     Preguntas <span class="text-blue-400">({{ questions.length }})</span>
   </h2>
 
-  <!-- Formulario para preguntar -->
   @if (isLoggedIn && !isOwner) {
     <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6">
-      <p class="text-slate-300 text-sm mb-3 font-medium">¿Tenés alguna pregunta?</p>
+      <p class="text-slate-300 text-sm mb-3 font-medium">¿Tienes alguna pregunta?</p>
       <div class="flex gap-3">
         <input
           [formControl]="questionForm.controls.content"
           type="text"
-          placeholder="Escribí tu pregunta..."
+          placeholder="Escribe tu pregunta..."
           class="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
         <button (click)="onAsk()" [disabled]="questionForm.invalid || submitting"
           class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50">
           {{ submitting ? '...' : 'Preguntar' }}
         </button>
       </div>
+      @if (questionForm.controls.content.hasError('required') && questionForm.controls.content.touched) {
+        <p class="text-red-400 text-xs mt-2">La pregunta es requerida.</p>
+      }
+      @if (questionForm.controls.content.hasError('minlength') && questionForm.controls.content.touched) {
+        <p class="text-red-400 text-xs mt-2">La pregunta debe tener al menos 5 caracteres.</p>
+      }
+      @if (questionForm.controls.content.hasError('maxlength') && questionForm.controls.content.touched) {
+        <p class="text-red-400 text-xs mt-2">La pregunta no puede superar 500 caracteres.</p>
+      }
+      @if (questionForm.controls.content.hasError('contactInfo') && questionForm.controls.content.touched) {
+        <p class="text-red-400 text-xs mt-2">No se permite compartir datos de contacto.</p>
+      }
+      @if (questionError) {
+        <p class="text-red-400 text-xs mt-2">{{ questionError }}</p>
+      }
     </div>
   }
 
   @if (!isLoggedIn) {
     <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 text-center">
       <p class="text-slate-400 text-sm">
-        <a routerLink="/login" class="text-blue-400 hover:text-blue-300 font-medium">Iniciá sesión</a>
+        <a routerLink="/login" class="text-blue-400 hover:text-blue-300 font-medium">Inicia sesión</a>
         para hacer preguntas al vendedor.
       </p>
     </div>
   }
 
-  <!-- Lista de preguntas -->
   @if (loading) {
     <div class="text-slate-400 text-sm">Cargando preguntas...</div>
   }
@@ -46,7 +59,6 @@
       @for (question of questions; track question.id) {
         <div class="bg-white/5 border border-white/10 rounded-2xl p-5">
 
-          <!-- Pregunta -->
           <div class="flex items-start gap-3 mb-3">
             <div class="w-8 h-8 rounded-full bg-blue-600/30 flex items-center justify-center text-blue-400 font-bold text-sm flex-shrink-0">
               {{ question.askerName.charAt(0).toUpperCase() }}
@@ -59,7 +71,6 @@
             </div>
           </div>
 
-          <!-- Respuesta existente -->
           @if (question.answer) {
             <div class="ml-11 bg-slate-800/50 rounded-xl p-4 border-l-2 border-blue-500">
               <p class="text-slate-300 text-sm">{{ question.answer.content }}</p>
@@ -69,7 +80,6 @@
             </div>
           }
 
-          <!-- Botón responder (solo owner, sin respuesta aún) -->
           @if (isOwner && !question.answer) {
             @if (answeringId !== question.id) {
               <div class="ml-11 mt-2">
@@ -80,19 +90,38 @@
               </div>
             } @else {
               <div class="ml-11 mt-3 flex gap-3">
-                <input
-                  [formControl]="answerForm.controls.content"
-                  type="text"
-                  placeholder="Escribí tu respuesta..."
-                  class="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                <button (click)="onAnswer(question.id)" [disabled]="answerForm.invalid || submitting"
-                  class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50">
-                  {{ submitting ? '...' : 'Enviar' }}
-                </button>
-                <button (click)="answeringId = null"
-                  class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-xl transition-all">
-                  Cancelar
-                </button>
+                <div class="flex-1">
+                  <input
+                    [formControl]="answerForm.controls.content"
+                    type="text"
+                    placeholder="Escribe tu respuesta..."
+                    class="w-full px-4 py-2 bg-slate-800 border border-slate-700 text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                  @if (answerForm.controls.content.hasError('required') && answerForm.controls.content.touched) {
+                    <p class="text-red-400 text-xs mt-2">La respuesta es requerida.</p>
+                  }
+                  @if (answerForm.controls.content.hasError('minlength') && answerForm.controls.content.touched) {
+                    <p class="text-red-400 text-xs mt-2">La respuesta debe tener al menos 3 caracteres.</p>
+                  }
+                  @if (answerForm.controls.content.hasError('maxlength') && answerForm.controls.content.touched) {
+                    <p class="text-red-400 text-xs mt-2">La respuesta no puede superar 500 caracteres.</p>
+                  }
+                  @if (answerForm.controls.content.hasError('contactInfo') && answerForm.controls.content.touched) {
+                    <p class="text-red-400 text-xs mt-2">No se permite compartir datos de contacto.</p>
+                  }
+                  @if (answerError) {
+                    <p class="text-red-400 text-xs mt-2">{{ answerError }}</p>
+                  }
+                </div>
+                <div class="flex gap-3">
+                  <button (click)="onAnswer(question.id)" [disabled]="answerForm.invalid || submitting"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50">
+                    {{ submitting ? '...' : 'Enviar' }}
+                  </button>
+                  <button (click)="answeringId = null"
+                    class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded-xl transition-all">
+                    Cancelar
+                  </button>
+                </div>
               </div>
             }
           }
@@ -101,5 +130,4 @@
       }
     </div>
   }
-
 </div>

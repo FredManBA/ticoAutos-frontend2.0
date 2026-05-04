@@ -5,54 +5,118 @@
       <h2 class="text-4xl font-extrabold text-white tracking-tight">
         Tico<span class="text-blue-400">Autos</span>
       </h2>
-      <p class="mt-2 text-sm text-slate-300">Bienvenido de vuelta</p>
+      <p class="mt-2 text-sm text-slate-300">
+        {{ requiresTwoFactor ? 'Verificación por SMS' : 'Bienvenido de vuelta' }}
+      </p>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-5">
+    @if (!requiresTwoFactor) {
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-5">
 
-      <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
-        <input formControlName="email" type="email"
-          class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500"
-          placeholder="correo@ejemplo.com" />
-        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-          <p class="text-red-400 text-xs mt-1 ml-1">Ingresá un correo válido.</p>
+        @if (infoMessage) {
+          <div class="bg-blue-500/20 border border-blue-500/50 text-blue-100 text-sm py-3 px-4 rounded-xl text-center">
+            {{ infoMessage }}
+          </div>
         }
-      </div>
 
-      <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
-        <div class="relative">
-          <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
-            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 pr-12"
-            placeholder="••••••••" />
-          <button type="button" (click)="togglePassword()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
-            {{ showPassword ? '🙈' : '👁️' }}
-          </button>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Correo electrónico</label>
+          <input formControlName="email" type="email"
+            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500"
+            placeholder="correo@ejemplo.com" />
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <p class="text-red-400 text-xs mt-1 ml-1">Ingrese un correo válido.</p>
+          }
         </div>
-        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-          <p class="text-red-400 text-xs mt-1 ml-1">Mínimo 6 caracteres.</p>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+          <div class="relative">
+            <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
+              class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 pr-24"
+              placeholder="Mínimo 6 caracteres" />
+            <button type="button" (click)="togglePassword()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-white transition-colors">
+              {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+            </button>
+          </div>
+          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <p class="text-red-400 text-xs mt-1 ml-1">Mínimo 6 caracteres.</p>
+          }
+        </div>
+
+        @if (errorMessage) {
+          <div class="bg-red-500/20 border border-red-500/50 text-red-200 text-sm py-3 px-4 rounded-xl text-center">
+            {{ errorMessage }}
+          </div>
         }
-      </div>
 
-      @if (errorMessage) {
-        <div class="bg-red-500/20 border border-red-500/50 text-red-200 text-sm py-3 px-4 rounded-xl text-center">
-          ⚠️ {{ errorMessage }}
+        @if (resendMessage) {
+          <div class="bg-slate-800/70 border border-slate-600 text-slate-100 text-sm py-3 px-4 rounded-xl text-center">
+            {{ resendMessage }}
+          </div>
+        }
+
+        <button type="submit" [disabled]="loginForm.invalid || loading"
+          class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-900/40">
+          {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
+        </button>
+
+        <button type="button" (click)="signInWithGoogle()"
+          class="w-full py-3 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl transition-all border border-slate-200">
+          Continuar con Google
+        </button>
+
+        <button type="button" (click)="resendVerification()" [disabled]="resendLoading"
+          class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-slate-700">
+          {{ resendLoading ? 'Enviando...' : 'Reenviar correo de verificación' }}
+        </button>
+
+      </form>
+
+      <p class="text-center text-sm text-slate-400">
+        ¿No tienes cuenta?
+        <a routerLink="/register" class="text-blue-400 hover:text-blue-300 font-medium">Regístrate aquí</a>
+      </p>
+    } @else {
+      <form [formGroup]="twoFactorForm" (ngSubmit)="verifyTwoFactor()" class="mt-8 space-y-5">
+        <div class="bg-blue-500/20 border border-blue-500/50 text-blue-100 text-sm py-3 px-4 rounded-xl text-center">
+          {{ twoFactorMessage || 'Ingrese el código enviado por SMS.' }}
+          @if (twoFactorEmail) {
+            <p class="text-blue-200 mt-1">{{ twoFactorEmail }}</p>
+          }
         </div>
-      }
 
-      <button type="submit" [disabled]="loginForm.invalid || loading"
-        class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-900/40">
-        {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
-      </button>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Código SMS</label>
+          <input formControlName="code" type="text" inputmode="numeric" maxlength="6" placeholder="123456"
+            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 text-center tracking-widest" />
+          @if (twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched) {
+            <p class="text-red-400 text-xs mt-1 ml-1">El código debe tener 6 dígitos.</p>
+          }
+        </div>
 
-    </form>
+        @if (errorMessage) {
+          <div class="bg-red-500/20 border border-red-500/50 text-red-200 text-sm py-3 px-4 rounded-xl text-center">
+            {{ errorMessage }}
+          </div>
+        }
 
-    <p class="text-center text-sm text-slate-400">
-      ¿No tenés cuenta?
-      <a routerLink="/register" class="text-blue-400 hover:text-blue-300 font-medium">Registrate aquí</a>
-    </p>
+        <button type="submit" [disabled]="twoFactorForm.invalid || verifyingCode"
+          class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-900/40">
+          {{ verifyingCode ? 'Verificando...' : 'Verificar código' }}
+        </button>
 
+        <button type="button" (click)="requestNewCode()" [disabled]="loading"
+          class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-slate-700">
+          {{ loading ? 'Enviando...' : 'Generar nuevo código' }}
+        </button>
+
+        <button type="button" (click)="backToLogin()"
+          class="w-full py-3 bg-transparent hover:bg-white/10 text-slate-200 font-semibold rounded-xl transition-all border border-slate-700">
+          Volver al login
+        </button>
+      </form>
+    }
   </div>
 </div>

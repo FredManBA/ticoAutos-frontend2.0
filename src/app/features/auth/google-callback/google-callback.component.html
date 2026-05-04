@@ -1,0 +1,69 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-4 py-8">
+  <div class="max-w-md w-full space-y-8 bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 shadow-2xl">
+    <div class="text-center">
+      <h2 class="text-4xl font-extrabold text-white tracking-tight">
+        Tico<span class="text-blue-400">Autos</span>
+      </h2>
+      <p class="mt-2 text-sm text-slate-300">Registro con Google</p>
+    </div>
+
+    @if (status === 'requires_cedula') {
+      <div class="space-y-4">
+        <div class="bg-slate-800/70 border border-slate-700 text-slate-100 text-sm py-3 px-4 rounded-xl">
+          <p>{{ email }}</p>
+          @if (googleFullName) {
+            <p class="text-slate-400 mt-1">{{ googleFullName }}</p>
+          }
+        </div>
+
+        <form [formGroup]="completeForm" (ngSubmit)="completeRegistration()" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Cédula</label>
+            <input formControlName="cedula" type="text" inputmode="numeric" maxlength="9" placeholder="123456789"
+              class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500" />
+            @if (completeForm.get('cedula')?.hasError('required') && completeForm.get('cedula')?.touched) {
+              <p class="text-red-400 text-xs mt-1 ml-1">La cedula es requerida.</p>
+            }
+            @if (completeForm.get('cedula')?.hasError('pattern') && completeForm.get('cedula')?.touched) {
+              <p class="text-red-400 text-xs mt-1 ml-1">Debe tener 9 digitos, sin guiones ni espacios.</p>
+            }
+            @if (completeForm.get('cedula')?.hasError('cedulaNotValidated') && !cedulaLookupMessage && completeForm.get('cedula')?.touched) {
+              <p class="text-red-400 text-xs mt-1 ml-1">Debe validar una cedula existente en el padron.</p>
+            }
+            @if (cedulaLookupLoading) {
+              <p class="text-blue-200 text-xs mt-1 ml-1">Validando cédula...</p>
+            }
+            @if (cedulaLookupMessage) {
+              <p class="text-red-400 text-xs mt-1 ml-1">{{ cedulaLookupMessage }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del padrón</label>
+            <input type="text" [value]="validatedFullName" readonly placeholder="Se completa al validar la cédula"
+              class="w-full px-4 py-3 bg-slate-900/70 border border-slate-700 text-slate-100 rounded-xl outline-none placeholder-slate-500" />
+          </div>
+
+          @if (message) {
+            <div class="bg-red-500/20 border border-red-500/50 text-red-200 text-sm py-3 px-4 rounded-xl text-center">
+              {{ message }}
+            </div>
+          }
+
+          <button type="submit" [disabled]="completeForm.invalid || !cedulaValidated || loading"
+            class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-900/40">
+            {{ loading ? 'Completando...' : 'Completar registro' }}
+          </button>
+        </form>
+      </div>
+    } @else {
+      <div class="bg-red-500/20 border border-red-500/50 text-red-200 text-sm py-3 px-4 rounded-xl text-center">
+        {{ message || 'No fue posible iniciar sesión con Google.' }}
+      </div>
+
+      <a routerLink="/login" class="inline-flex justify-center w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/40">
+        Ir al login
+      </a>
+    }
+  </div>
+</div>

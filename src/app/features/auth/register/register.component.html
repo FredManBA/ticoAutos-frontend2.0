@@ -1,26 +1,38 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-4">
-  <div class="max-w-md w-full space-y-8 bg-white/10 backdrop-blur-lg p-10 rounded-2xl border border-white/20 shadow-2xl">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-4 py-8">
+  <div class="max-w-lg w-full space-y-8 bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 shadow-2xl">
 
     <div class="text-center">
       <h2 class="text-4xl font-extrabold text-white tracking-tight">
         Tico<span class="text-blue-400">Autos</span>
       </h2>
-      <p class="mt-2 text-sm text-slate-300">Creá tu cuenta gratis</p>
+      <p class="mt-2 text-sm text-slate-300">Crea tu cuenta gratis</p>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-5">
 
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Nombre completo</label>
-        <input formControlName="fullName" type="text" placeholder="Alvaro Zamora"
+        <label class="block text-sm font-medium text-slate-300 mb-1">Cédula</label>
+        <input formControlName="cedula" type="text" inputmode="numeric" maxlength="9" placeholder="123456789"
           class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500" />
-        @if (registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched) {
-          <p class="text-red-400 text-xs mt-1 ml-1">Mínimo 3 caracteres.</p>
+        @if (registerForm.get('cedula')?.invalid && registerForm.get('cedula')?.touched) {
+          <p class="text-red-400 text-xs mt-1 ml-1">Debe tener 9 dígitos, sin guiones ni espacios.</p>
+        }
+        @if (cedulaLookupLoading) {
+          <p class="text-blue-200 text-xs mt-1 ml-1">Validando cédula...</p>
+        }
+        @if (cedulaLookupMessage) {
+          <p class="text-red-400 text-xs mt-1 ml-1">{{ cedulaLookupMessage }}</p>
         }
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del padrón</label>
+        <input type="text" [value]="validatedFullName" readonly placeholder="Se completa al validar la cédula"
+          class="w-full px-4 py-3 bg-slate-900/70 border border-slate-700 text-slate-100 rounded-xl outline-none placeholder-slate-500" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Correo electrónico</label>
         <input formControlName="email" type="email" placeholder="correo@ejemplo.com"
           class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500" />
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
@@ -29,30 +41,39 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
-        <div class="relative">
-          <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
-            placeholder="Mínimo 8 caracteres"
-            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 pr-12" />
-          <button type="button" (click)="togglePassword()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
-            {{ showPassword ? '🙈' : '👁️' }}
-          </button>
-        </div>
-        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <p class="text-red-400 text-xs mt-1 ml-1">Mínimo 8 caracteres.</p>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono</label>
+        <input formControlName="phoneNumber" type="tel" placeholder="+50688888888"
+          class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500" />
+        @if (registerForm.get('phoneNumber')?.invalid && registerForm.get('phoneNumber')?.touched) {
+          <p class="text-red-400 text-xs mt-1 ml-1">Use el formato +506########.</p>
         }
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Confirmar Contraseña</label>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+        <div class="relative">
+          <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
+            placeholder="Mínimo 8 caracteres"
+            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 pr-24" />
+          <button type="button" (click)="togglePassword()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-white transition-colors">
+            {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+          </button>
+        </div>
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <p class="text-red-400 text-xs mt-1 ml-1">Debe tener 8 caracteres, una mayúscula y un número.</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Confirmar contraseña</label>
         <div class="relative">
           <input formControlName="confirmPassword" [type]="showConfirm ? 'text' : 'password'"
-            placeholder="Repetí tu contraseña"
-            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 pr-12" />
+            placeholder="Repite tu contraseña"
+            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-500 pr-24" />
           <button type="button" (click)="toggleConfirm()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
-            {{ showConfirm ? '🙈' : '👁️' }}
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-300 hover:text-white transition-colors">
+            {{ showConfirm ? 'Ocultar' : 'Mostrar' }}
           </button>
         </div>
         @if (passwordMismatch) {
@@ -62,20 +83,31 @@
 
       @if (errorMessage) {
         <div class="bg-red-500/20 border border-red-500/50 text-red-200 text-sm py-3 px-4 rounded-xl text-center">
-          ⚠️ {{ errorMessage }}
+          {{ errorMessage }}
         </div>
       }
 
-      <button type="submit" [disabled]="registerForm.invalid || loading"
+      @if (successMessage) {
+        <div class="bg-emerald-500/20 border border-emerald-500/50 text-emerald-100 text-sm py-3 px-4 rounded-xl text-center">
+          {{ successMessage }}
+        </div>
+      }
+
+      <button type="submit" [disabled]="registerForm.invalid || !cedulaValidated || loading"
         class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-900/40">
         {{ loading ? 'Registrando...' : 'Crear cuenta' }}
+      </button>
+
+      <button type="button" (click)="signInWithGoogle()"
+        class="w-full py-3 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl transition-all border border-slate-200">
+        Registrarse con Google
       </button>
 
     </form>
 
     <p class="text-center text-sm text-slate-400">
-      ¿Ya tenés cuenta?
-      <a routerLink="/login" class="text-blue-400 hover:text-blue-300 font-medium">Iniciá sesión</a>
+      ¿Ya tienes cuenta?
+      <a routerLink="/login" class="text-blue-400 hover:text-blue-300 font-medium">Inicia sesión</a>
     </p>
 
   </div>
