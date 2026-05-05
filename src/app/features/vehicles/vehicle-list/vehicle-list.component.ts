@@ -2,8 +2,17 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { VehicleService } from '../../../core/services/vehicle.service';
-import { Vehicle, VehicleFilter, PagedResult } from '../../../core/models/vehicle.models';
+import { GraphQLService } from '../../../core/services/graphql.service';
+import { Vehicle } from '../../../core/models/vehicle.models';
+
+const GET_VEHICLES = `
+  query {
+    vehicles {
+      id brand model year price description imageUrl
+      isSold ownerId ownerName createdAt unansweredQuestions
+    }
+  }
+`;
 
 @Component({
   selector: 'app-vehicle-list',
@@ -12,7 +21,7 @@ import { Vehicle, VehicleFilter, PagedResult } from '../../../core/models/vehicl
   templateUrl: './vehicle-list.component.html'
 })
 export class VehicleListComponent implements OnInit {
-  private vehicleService = inject(VehicleService);
+  private graphql = inject(GraphQLService);
   private fb = inject(FormBuilder);
 
   vehicles: Vehicle[] = [];
@@ -21,6 +30,7 @@ export class VehicleListComponent implements OnInit {
   currentPage = 1;
   pageSize = 9;
   loading = false;
+  errorMsg = '';
 
   filterForm = this.fb.group({
     brand: [''],
@@ -38,28 +48,20 @@ export class VehicleListComponent implements OnInit {
 
   loadVehicles(): void {
     this.loading = true;
-    const form = this.filterForm.value;
+    this.errorMsg = '';
 
-    const filter: VehicleFilter = {
-      page: this.currentPage,
-      pageSize: this.pageSize,
-      brand: form.brand || undefined,
-      model: form.model || undefined,
-      minYear: form.minYear || undefined,
-      maxYear: form.maxYear || undefined,
-      minPrice: form.minPrice || undefined,
-      maxPrice: form.maxPrice || undefined,
-      isSold: form.isSold === '' ? undefined : form.isSold === 'true'
-    };
-
-    this.vehicleService.getAll(filter).subscribe({
-      next: (result) => {
-        this.vehicles = result.items;
-        this.totalPages = result.totalPages;
-        this.totalCount = result.totalCount;
+    this.graphql.query<{ vehicles: Vehicle[] }>(GET_VEHICLES).subscribe({
+      next: (data) => {
+        this.vehicles = data.vehicles ?? [];
+        this.totalCount = this.vehicles.length;
+        this.totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: (err) => {
+        this.errorMsg = err?.message ?? 'Error al conectar con GraphQL';
+        console.error('[GraphQL]', err);
+        this.loading = false;
+      }
     });
   }
 

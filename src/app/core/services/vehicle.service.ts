@@ -13,7 +13,7 @@ import { Vehicle, VehicleFilter, PagedResult } from '../models/vehicle.models';
 })
 export class VehicleService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:7268/api/vehicles';
+  private readonly API_URL = 'http://localhost:5105/api/vehicles';
 
   /**
    * Retrieves a paginated and filtered list of vehicles.
