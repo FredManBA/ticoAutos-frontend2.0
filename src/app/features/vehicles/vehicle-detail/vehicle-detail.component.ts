@@ -1,13 +1,23 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { VehicleService } from '../../../core/services/vehicle.service';
+import { GraphQLService } from '../../../core/services/graphql.service';
 import { Vehicle } from '../../../core/models/vehicle.models';
 import { VehicleQuestionsComponent } from '../vehicle-questions/vehicle-questions.component';
 
-/**
- * Component for displaying full vehicle detail with share URL and Q&A section.
- */
+const GET_VEHICLE = `
+  query GetVehicle($id: Int!) {
+    vehicle(id: $id) {
+      id brand model year price description imageUrl
+      isSold ownerId ownerName createdAt unansweredQuestions
+      questions {
+        id content createdAt vehicleId askerId askerName
+        answer { id content createdAt }
+      }
+    }
+  }
+`;
+
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
@@ -16,7 +26,7 @@ import { VehicleQuestionsComponent } from '../vehicle-questions/vehicle-question
 })
 export class VehicleDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private vehicleService = inject(VehicleService);
+  private graphql = inject(GraphQLService);
 
   vehicle: Vehicle | null = null;
   loading = true;
@@ -24,20 +34,19 @@ export class VehicleDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.vehicleService.getById(id).subscribe({
-      next: (v) => {
-        this.vehicle = v;
+    this.graphql.query<{ vehicle: Vehicle }>(GET_VEHICLE, { id }).subscribe({
+      next: (data) => {
+        this.vehicle = data.vehicle;
         this.loading = false;
       },
       error: () => { this.loading = false; }
     });
   }
 
-  /** Copies the current page URL to clipboard for sharing. */
   copyUrl(): void {
     navigator.clipboard.writeText(window.location.href).then(() => {
       this.urlCopied = true;
-      setTimeout(() => this.urlCopied = false, 2000);
+      setTimeout(() => (this.urlCopied = false), 2000);
     });
   }
 }

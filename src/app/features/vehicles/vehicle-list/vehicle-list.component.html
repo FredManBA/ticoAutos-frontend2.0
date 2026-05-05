@@ -55,6 +55,13 @@
       <div class="text-center text-slate-400 py-20">Cargando vehículos...</div>
     }
 
+    <!-- Error -->
+    @if (errorMsg) {
+      <div class="text-center text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl py-4 px-6 mb-6">
+        {{ errorMsg }}
+      </div>
+    }
+
     <!-- without results -->
     @if (!loading && vehicles.length === 0) {
       <div class="text-center text-slate-400 py-20">No se encontraron vehículos.</div>
