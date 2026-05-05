@@ -11,7 +11,7 @@ import { QuestionResponse } from '../models/vehicle.models';
 })
 export class QuestionService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'https://localhost:7268/api/questions';
+  private readonly API_URL = 'http://localhost:5105/api/questions';
 
   /**
    * Retrieves all questions for a specific vehicle.

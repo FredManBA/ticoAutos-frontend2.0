@@ -3,8 +3,18 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { QuestionService } from '../../../core/services/question.service';
+import { GraphQLService } from '../../../core/services/graphql.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { QuestionResponse } from '../../../core/models/vehicle.models';
+
+const GET_QUESTIONS_BY_VEHICLE = `
+  query GetQuestionsByVehicle($vehicleId: Int!) {
+    questionsByVehicle(vehicleId: $vehicleId) {
+      id content createdAt vehicleId askerId askerName
+      answer { id content createdAt }
+    }
+  }
+`;
 
 @Component({
   selector: 'app-vehicle-questions',
@@ -14,6 +24,7 @@ import { QuestionResponse } from '../../../core/models/vehicle.models';
 })
 export class VehicleQuestionsComponent implements OnInit {
   private questionService = inject(QuestionService);
+  private graphql = inject(GraphQLService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
@@ -57,13 +68,17 @@ export class VehicleQuestionsComponent implements OnInit {
   }
 
   loadQuestions(): void {
-    this.questionService.getByVehicle(this.vehicleId).subscribe({
-      next: (q: QuestionResponse[]) => {
-        this.questions = q;
-        this.loading = false;
-      },
-      error: () => { this.loading = false; }
-    });
+    this.graphql
+      .query<{ questionsByVehicle: QuestionResponse[] }>(GET_QUESTIONS_BY_VEHICLE, {
+        vehicleId: this.vehicleId
+      })
+      .subscribe({
+        next: (data) => {
+          this.questions = data.questionsByVehicle;
+          this.loading = false;
+        },
+        error: () => { this.loading = false; }
+      });
   }
 
   onAsk(): void {
